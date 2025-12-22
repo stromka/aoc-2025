@@ -27,6 +27,10 @@ pub fn process(path: &Path) -> anyhow::Result<String> {
     let row = text.iter().next().unwrap().clone();
     let input = process_input(row);
 
+    // iterate through numbers in each range. 
+    // convert to string and split in half
+    // see if the halves are the same
+
     Ok("sup".to_string())
 }
 
