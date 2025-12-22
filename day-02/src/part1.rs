@@ -81,7 +81,7 @@ mod tests {
     fn test_process_full() -> anyhow::Result<()> {
         let input = Path::new("./../inputs/day2_part1.csv");
 
-        assert_eq!(1227775554, process(input)?);
+        assert_eq!(54234399924, process(input)?);
         Ok(())
     }
 

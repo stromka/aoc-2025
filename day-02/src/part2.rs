@@ -22,20 +22,17 @@ pub fn process_input(data: String) -> Vec<(usize, usize)> {
     return pairs
 }
 
-pub fn split_string(id_str: &mut String, chunk_size: usize) -> HashSet<String> {
+pub fn split_string(id_str: &String, chunk_size: usize) -> HashSet<&str> {
     // collect the substrings
     let mut chunks = HashSet::new();
+    let mut start = 0;
 
-    // println!("{id_str}");
-    let mut s = id_str.len();
-    // println!("chunk size: {chunk_size}");
-    while s > 0 {
-        // println!("s before subtraction: {s}");
-        s = s - chunk_size;
-        // println!("s = {s}");
-        let suff = id_str.split_off(s);
-        // println!(" - {suff}");
-        chunks.insert(suff);
+    while start < id_str.len() {
+        let end = start + chunk_size - 1;
+        let chunk = &id_str[start..=end];
+
+        chunks.insert(chunk);
+        start += chunk_size;
     }
 
     chunks
@@ -47,7 +44,7 @@ pub fn is_valid_id(id: usize) -> bool {
     for chunk_size in 1..=(id_str.len() / 2) {
         // only check chunk lengths that fit
         if id_str.len() % chunk_size == 0 {
-            let chunks = split_string(&mut id_str.clone(), chunk_size);
+            let chunks = split_string(&id_str, chunk_size);
             // we exit out with false if we encounter any invalid chunking
             if chunks.len() == 1 {
                 return false
@@ -96,31 +93,31 @@ mod tests {
     fn test_process_full() -> anyhow::Result<()> {
         let input = Path::new("./../inputs/day2_part1.csv");
 
-        assert_eq!(1227775554, process(input)?);
+        assert_eq!(70187097315, process(input)?);
         Ok(())
     }
 
     #[test]
     fn test_split_string() -> anyhow::Result<()> {
         let mut set1 = HashSet::new();
-        set1.insert("1".to_string());
-        assert_eq!(set1, split_string(&mut "11".to_string(), 1));
+        set1.insert("1");
+        assert_eq!(set1, split_string(&"11".to_string(), 1));
 
         let mut set1 = HashSet::new();
-        set1.insert("11".to_string());
-        set1.insert("22".to_string());
-        set1.insert("33".to_string());
-        assert_eq!(set1, split_string(&mut "112233".to_string(), 2));
+        set1.insert("11");
+        set1.insert("22");
+        set1.insert("33");
+        assert_eq!(set1, split_string(&"112233".to_string(), 2));
 
         let mut set1 = HashSet::new();
-        set1.insert("1".to_string());
-        set1.insert("2".to_string());
-        assert_eq!(set1, split_string(&mut "211".to_string(), 1));
+        set1.insert("1");
+        set1.insert("2");
+        assert_eq!(set1, split_string(&"211".to_string(), 1));
 
         let mut set1 = HashSet::new();
-        set1.insert("1".to_string());
-        set1.insert("2".to_string());
-        assert_eq!(set1, split_string(&mut "112".to_string(), 1));
+        set1.insert("1");
+        set1.insert("2");
+        assert_eq!(set1, split_string(&"112".to_string(), 1));
 
         Ok(())
     }
