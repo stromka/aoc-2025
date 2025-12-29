@@ -42,18 +42,17 @@ pub fn find_n_blocking(vec: &Vec<Vec<usize>>, row: usize, col: usize) -> Option<
     return Some(sum)
 }
 
-pub fn find_n_accessible(grid: &Vec<Vec<usize>>, n_rows: usize, n_cols: usize) -> usize {
-    let mut total = 0;
-
+pub fn find_coords_accessible(grid: &Vec<Vec<usize>>, n_rows: usize, n_cols: usize) -> Vec<(usize, usize)> {
     let mut debug = vec![vec!['.'; n_rows - 2]; n_cols - 2];
+    let mut coords = vec![];
     
     for i in 1..n_rows-1 {
         for j in 1..n_cols-1 {
             let n_blocking = find_n_blocking(&grid, i, j);
             if let Some(n) = n_blocking {
                 if n < 4 { 
-                    total += 1;
                     debug[i-1][j-1] = 'x';
+                    coords.push((i, j));
                 } else {
                     debug[i-1][j-1] = '@';
                 }
@@ -66,15 +65,42 @@ pub fn find_n_accessible(grid: &Vec<Vec<usize>>, n_rows: usize, n_cols: usize) -
         println!("{line_str}");
     }
 
+    coords
+}
+
+pub fn apply_coords(grid: &mut Vec<Vec<usize>>, coords: &Vec<(usize, usize)>) {
+    for (i, j) in coords.iter() {
+        grid[*i][*j] = 0;
+    }
+}
+
+pub fn remove_all_tp(grid: &mut Vec<Vec<usize>>, n_rows: usize, n_cols: usize) -> usize {
+    let mut total = 0;
+
+    let mut rounds = 1;
+
+    loop {
+        println!("\nround {rounds}");
+        let accessible_rolls = find_coords_accessible(&grid, n_rows, n_cols);
+
+        if accessible_rolls.len() == 0 { break }
+
+        apply_coords(grid, &accessible_rolls);
+
+        total += accessible_rolls.len();
+        rounds += 1;
+
+    }
+
     total
 }
 
 #[tracing::instrument]
 pub fn process(path: &Path) -> anyhow::Result<usize> {
     let text = read_txt(path);
-    let (grid, n_rows, n_cols) = buffered_grid(text);
+    let (mut grid, n_rows, n_cols) = buffered_grid(text);
 
-    let total = find_n_accessible(&grid, n_rows, n_cols);
+    let total = remove_all_tp(&mut grid, n_rows, n_cols);
 
     return Ok(total)
 }
@@ -88,7 +114,7 @@ mod tests {
     fn test_process() -> anyhow::Result<()> {
         let input = Path::new("./../inputs/day4_sample.csv");
 
-        assert_eq!(13, process(input)?);
+        assert_eq!(43, process(input)?);
         Ok(())
     }
 
@@ -96,7 +122,7 @@ mod tests {
     fn test_process_full() -> anyhow::Result<()> {
         let input = Path::new("./../inputs/day4.txt");
 
-        assert_eq!(1604, process(input)?);
+        assert_eq!(9397, process(input)?);
         Ok(())
     }
 
@@ -162,8 +188,8 @@ mod tests {
             vec![0, 0, 0, 0, 0],
         ];
 
-        let res = find_n_accessible(&grid, 5, 5);
-        assert_eq!(res, 4);
+        let res = find_coords_accessible(&grid, 5, 5);
+        assert_eq!(res.len(), 4);
 
         Ok(())
     }
@@ -171,7 +197,7 @@ mod tests {
      #[test]
     fn test_find_n_accessible_0() -> anyhow::Result<()> {
 
-        let grid = vec![
+        let mut grid = vec![
             vec![0, 0, 0, 0, 0],
             vec![0, 1, 0, 0, 0],
             vec![0, 1, 1, 1, 0],
@@ -179,8 +205,39 @@ mod tests {
             vec![0, 0, 0, 0, 0],
         ];
 
-        let res = find_n_accessible(&grid, 5, 5);
-        assert_eq!(res, 4);
+        let res = find_coords_accessible(&grid, 5, 5);
+        assert_eq!(res.len(), 4);
+
+        assert_eq!(res, vec![(1, 1), (2, 1), (2, 3), (3, 2)]);
+
+        apply_coords(&mut grid, &res);
+
+        let answer = vec![
+            vec![0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0],
+            vec![0, 0, 1, 0, 0],
+            vec![0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0],
+        ];
+
+        assert_eq!(grid, answer);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_remove_all_tp() -> anyhow::Result<()> {
+        let mut grid = vec![
+            vec![0, 0, 0, 0, 0],
+            vec![0, 1, 0, 0, 0],
+            vec![0, 1, 1, 1, 0],
+            vec![0, 0, 1, 0, 0],
+            vec![0, 0, 0, 0, 0],
+        ];
+
+        let total = remove_all_tp(&mut grid, 5, 5);
+
+        assert_eq!(total, 5);
 
         Ok(())
     }
