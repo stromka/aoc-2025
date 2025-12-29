@@ -44,14 +44,26 @@ pub fn find_n_blocking(vec: &Vec<Vec<usize>>, row: usize, col: usize) -> Option<
 
 pub fn find_n_accessible(grid: &Vec<Vec<usize>>, n_rows: usize, n_cols: usize) -> usize {
     let mut total = 0;
+
+    let mut debug = vec![vec!['.'; n_rows - 2]; n_cols - 2];
     
     for i in 1..n_rows-1 {
         for j in 1..n_cols-1 {
             let n_blocking = find_n_blocking(&grid, i, j);
             if let Some(n) = n_blocking {
-                if n < 5 { total += 1}
+                if n < 4 { 
+                    total += 1;
+                    debug[i-1][j-1] = 'x';
+                } else {
+                    debug[i-1][j-1] = '@';
+                }
             }
         }
+    }
+
+    for line in debug.iter() {
+        let line_str = line.iter().collect::<String>();
+        println!("{line_str}");
     }
 
     total
@@ -77,6 +89,14 @@ mod tests {
         let input = Path::new("./../inputs/day4_sample.csv");
 
         assert_eq!(13, process(input)?);
+        Ok(())
+    }
+
+     #[test]
+    fn test_process_full() -> anyhow::Result<()> {
+        let input = Path::new("./../inputs/day4.txt");
+
+        assert_eq!(1604, process(input)?);
         Ok(())
     }
 
@@ -108,23 +128,23 @@ mod tests {
     #[rstest]
     #[case((1, 1), Some(2))]
     #[case((1, 2), None)]
-    #[case((1, 3), Some(2))]
+    #[case((1, 3), None)]
     #[case((2, 1), Some(3))]
-    #[case((2, 2), Some(6))]
-    #[case((2, 3), Some(4))]
+    #[case((2, 2), Some(5))]
+    #[case((2, 3), Some(3))]
     #[case((3, 1), None)]
-    #[case((3, 2), Some(5))]
-    #[case((3, 3), Some(5))]
+    #[case((3, 2), Some(4))]
+    #[case((3, 3), Some(3))]
     fn test_find_n_blocking(#[case] coords: (usize, usize), #[case] answer: Option<usize>) -> anyhow::Result<()> {
 
         let grid = vec![
             vec![0, 0, 0, 0, 0],
-            vec![0, 1, 0, 1, 0],
+            vec![0, 1, 0, 0, 0],
             vec![0, 1, 1, 1, 0],
             vec![0, 0, 1, 1, 0],
-            vec![0, 0, 0, 1, 1],
+            vec![0, 0, 0, 0, 0],
         ];
-        
+
         let res = find_n_blocking(&grid, coords.0, coords.1);
         assert_eq!(res, answer);
 
@@ -132,16 +152,33 @@ mod tests {
     }
 
     #[test]
-    fn test_find_n_accessible() -> anyhow::Result<()> {
+    fn test_find_n_accessible_1() -> anyhow::Result<()> {
 
         let grid = vec![
             vec![0, 0, 0, 0, 0],
-            vec![0, 1, 0, 1, 0],
-            vec![0, 1, 1, 1, 0],
-            vec![0, 0, 1, 1, 0],
-            vec![0, 0, 0, 1, 1],
+            vec![0, 1, 0, 0, 0],
+            vec![0, 1, 1, 0, 0],
+            vec![0, 0, 1, 0, 0],
+            vec![0, 0, 0, 0, 0],
         ];
-        
+
+        let res = find_n_accessible(&grid, 5, 5);
+        assert_eq!(res, 4);
+
+        Ok(())
+    }
+
+     #[test]
+    fn test_find_n_accessible_0() -> anyhow::Result<()> {
+
+        let grid = vec![
+            vec![0, 0, 0, 0, 0],
+            vec![0, 1, 0, 0, 0],
+            vec![0, 1, 1, 1, 0],
+            vec![0, 0, 1, 0, 0],
+            vec![0, 0, 0, 0, 0],
+        ];
+
         let res = find_n_accessible(&grid, 5, 5);
         assert_eq!(res, 4);
 
