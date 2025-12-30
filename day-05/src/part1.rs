@@ -21,7 +21,6 @@ impl PartialOrd for Range {
 }
 
 impl Range {
-    // TODO: include adjacent cases, like [0, 4] + [5, 10] should be [0, 10]. Currently not included
     fn merge(&self, other: &Self) -> Option<Range> {
         // [0, 10] - [4, 8]
         // [0, 4] - [5, 10]
