@@ -1,6 +1,7 @@
 use std::path::Path;
 use std::collections::BTreeSet;
-use crate::part1::{Range, read_txt, to_b_tree_set};
+use crate::part1::{read_txt, to_b_tree_set};
+use crate::Range;
 
 
 pub fn count_all_fresh_ids(tree: &BTreeSet<Range>) -> isize {

@@ -20,6 +20,28 @@ Benchmark 1: ./target/release/day-03 --part 2
   Range (min … max):     0.0 µs … 18546.2 µs    545 runs
 ```
 
+## Day 5
+
+Using the BTreeSet datastructure from the rust standard library.
+
+### Part 1
+
+```
+hyperfine --warmup 3 './target/release/day-05 --part 1'   
+Benchmark 1: ./target/release/day-05 --part 1
+  Time (mean ± σ):       1.1 ms ±   1.5 ms    [User: 0.7 ms, System: 0.3 ms]
+  Range (min … max):     0.0 ms …  12.8 ms    340 runs
+```
+
+### Part 2
+
+```
+hyperfine --warmup 3 './target/release/day-05 --part 2'
+Benchmark 1: ./target/release/day-05 --part 2
+  Time (mean ± σ):       1.1 ms ±   1.2 ms    [User: 0.6 ms, System: 0.3 ms]
+  Range (min … max):     0.0 ms …  10.5 ms    347 runs
+```
+
 ## Day 6
 
 Nothing pretty here
