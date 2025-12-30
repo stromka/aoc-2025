@@ -5,8 +5,8 @@ use std::cmp::{Ordering, PartialEq, PartialOrd, min, max};
 
 #[derive(Hash, PartialEq, Eq, Debug, Ord, Clone, Copy)]
 pub struct Range {
-    min: isize,
-    max: isize,
+    pub min: isize,
+    pub max: isize,
 }
 
 impl PartialOrd for Range {
@@ -21,7 +21,7 @@ impl PartialOrd for Range {
 }
 
 impl Range {
-    fn merge(&self, other: &Self) -> Option<Range> {
+    pub fn merge(&self, other: &Self) -> Option<Range> {
         // [0, 10] - [4, 8]
         // [0, 4] - [5, 10]
         // [5, 10] - [0, 4]

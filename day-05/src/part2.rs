@@ -1,88 +1,7 @@
-use std::fs::read_to_string;
 use std::path::Path;
 use std::collections::BTreeSet;
-use std::cmp::{Ordering, PartialEq, PartialOrd, min, max};
+use crate::part1::{Range, read_txt, to_b_tree_set};
 
-#[derive(Hash, PartialEq, Eq, Debug, Ord, Clone, Copy)]
-pub struct Range {
-    min: isize,
-    max: isize,
-}
-
-impl PartialOrd for Range {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        // sort Range object first on Max, then Min
-        if self.max == other.max {
-            return self.min.partial_cmp(&other.min)
-        } else {
-            return self.max.partial_cmp(&other.max)
-        }
-    }
-}
-
-impl Range {
-    // TODO: include adjacent cases, like [0, 4] + [5, 10] should be [0, 10]. Currently not included
-    fn merge(&self, other: &Self) -> Option<Range> {
-        // [0, 10] - [4, 8]
-        // [0, 4] - [5, 10]
-        // [5, 10] - [0, 4]
-        if (((self.max >= other.min - 1) & (self.max <= other.max)) | ((self.min <= other.max + 1) & (self.min >= other.min))) | 
-        (((other.max >= self.min - 1) & (other.max <= self.max)) | ((other.min <= self.max + 1) & (other.min >= self.min))) { 
-            Some(Range { min: min(self.min, other.min), max: max(self.max, other.max) })
-        }
-        else { None }
-    }
-}
-
-pub fn read_txt(path: &Path) -> (Vec<(isize, isize)>, Vec<isize>) {
-    let file_text = read_to_string(path).expect("Failed to read file");
-
-    let mut ranges = vec![];
-    let mut unknowns = vec![];
-
-    let mut lines = file_text.lines();
-    while let Some(line) = lines.next() {
-        if line == "" { break };
-
-        let coords = line.split('-').collect::<Vec<&str>>();
-        ranges.push((coords[0].parse::<isize>().unwrap(), coords[1].parse::<isize>().unwrap()));
-    }
-
-    while let Some(line) = lines.next() {
-        unknowns.push(line.parse::<isize>().unwrap());
-    }
-
-    (ranges, unknowns)
-}
-
-pub fn inspect_btree_for_insertion(tree: &BTreeSet<Range>, min: isize, max: isize) -> (Range, Vec<Range>) {
-    let mut range = Range { min, max };
-    let mut to_remove = vec![];
-
-    for range_in_tree in tree.iter() {
-        if let Some(new_range) = range.merge(range_in_tree) {
-            // keep track of the ranges we have merged
-            to_remove.push(range_in_tree.clone());
-            range = new_range.clone();
-        }
-    }
-    (range, to_remove)
-}
-
-pub fn to_b_tree_set(ranges: Vec<(isize, isize)>) -> BTreeSet<Range> {
-    let mut tree_set = BTreeSet::new();
-    for (min, max) in ranges {
-        let (range_to_add, ranges_to_remove) = inspect_btree_for_insertion(&tree_set, min, max);
-        
-        // remove the ranges we have marked
-        for remove_me in ranges_to_remove.into_iter() {
-            tree_set.remove(&remove_me);
-        }
-        // now insert our new range 
-        tree_set.insert(range_to_add);
-    }
-    tree_set
-}
 
 pub fn count_all_fresh_ids(tree: &BTreeSet<Range>) -> isize {
     let mut count = 0;
@@ -218,40 +137,5 @@ mod tests {
         let res = range_1.merge(&range_2);
 
         assert_eq!(res, answer);
-    }
-
-    #[test]
-    fn test_inspect_btree_empty() {
-        let tree = BTreeSet::new();
-
-        let (to_insert, to_remove) = inspect_btree_for_insertion(&tree, 0, 10);
-
-        assert_eq!(to_insert, Range { min: 0, max: 10 });
-        assert!(to_remove.is_empty());
-    }
-
-    #[test]
-    fn test_inspect_btree_one_overlap() {
-        let mut tree = BTreeSet::new();
-        tree.insert(Range { min: 5, max: 10 });
-
-        let (to_insert, to_remove) = inspect_btree_for_insertion(&tree, 0, 5);
-
-        assert_eq!(to_insert, Range { min: 0, max: 10 });
-        assert_eq!(to_remove, vec![Range { min: 5, max: 10 }]);
-    }
-
-    #[test]
-    fn test_inspect_btree_one_overlap_multiple() {
-        let mut tree = BTreeSet::new();
-        tree.insert(Range { min: 30, max: 40 });
-        tree.insert(Range { min: 5, max: 10 });
-        tree.insert(Range { min: 0, max: 3 });
-        tree.insert(Range { min: 15, max: 20 });
-
-        let (to_insert, to_remove) = inspect_btree_for_insertion(&tree, 11, 15);
-
-        assert_eq!(to_insert, Range { min: 5, max: 20 });
-        assert_eq!(to_remove, vec![Range { min: 5, max: 10 }, Range { min: 15, max: 20 }]);
     }
 }
