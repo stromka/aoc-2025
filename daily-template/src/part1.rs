@@ -1,5 +1,7 @@
+use std::path::Path;
+
 #[tracing::instrument]
-pub fn process(input: &[u8]) -> anyhow::Result<String> {
+pub fn process(input: &Path) -> anyhow::Result<String> {
     todo!("day 01 - part 1");
 }
 
@@ -9,7 +11,7 @@ mod tests {
 
     #[test]
     fn test_process() -> anyhow::Result<()> {
-        let input = b"";
+        let input = Path::new("something");
 
         assert_eq!("", process(input)?);
         Ok(())
