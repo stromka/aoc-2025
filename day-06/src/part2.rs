@@ -15,22 +15,7 @@ pub fn read_txt(path: &Path) -> Vec<Vec<char>> {
     problems
 }
 
-pub fn create_num_from_chars(chars: &[char]) -> usize {
-    // iterate backwards over the char
-    let mut multiple = 1;
-    let mut value = 0;
-    let n_chars = chars.len();
-
-    for i in 0..n_chars {
-        if chars[n_chars - i - 1] == ' ' { continue }
-        value += (chars[n_chars - i - 1] as u32 - '0' as u32) * multiple;
-        multiple *= 10;
-    }
-
-    value as usize
-}
-
-pub fn create_num_from_chars_option(chars: &[char]) -> Option<usize> {
+pub fn create_num_from_chars(chars: &[char]) -> Option<usize> {
     if chars.iter().all(|c| c == &' ') {
         return None
     }
@@ -48,19 +33,6 @@ pub fn create_num_from_chars_option(chars: &[char]) -> Option<usize> {
     Some(value as usize)
 }
 
-pub fn numbers_from_chunk(data: &Vec<Vec<char>>, j_start: usize, j_end: usize, n_vals: usize) -> Vec<usize> {
-    let mut numbers = vec![];
-    // we've reached a new number
-    for j in j_start..j_end-1 {
-        let mut number = vec![];
-        for i in 0..n_vals {
-            number.push(data[i][j])
-        }
-        numbers.push(create_num_from_chars(&number));
-    }
-    numbers
-}
-
 pub fn solve_problems(data: &Vec<Vec<char>>) -> Vec<usize> {
     let mut problems = vec![];
     let n_vals = data.len() - 1;
@@ -76,7 +48,7 @@ pub fn solve_problems(data: &Vec<Vec<char>>) -> Vec<usize> {
         }
 
         // we always compute the number from the row
-        let num = create_num_from_chars_option(&(0..n_vals).map(|v| data[v][j]).collect::<Vec<char>>());
+        let num = create_num_from_chars(&(0..n_vals).map(|v| data[v][j]).collect::<Vec<char>>());
         numbers.push(num);
 
         if data[n_vals][j] != ' ' {
@@ -99,7 +71,6 @@ pub fn process(input: &Path) -> anyhow::Result<usize> {
     let solutions = solve_problems(&data);
 
     Ok(solutions.iter().sum())
-    // Ok(1)
 }
 
 #[cfg(test)]
@@ -143,12 +114,13 @@ mod tests {
     }
 
     #[rstest]
-    #[case::all_nums(vec!['1', '2', '3'], 123)]
-    #[case::all_nums(vec![' ', ' ', '3'], 3)]
-    #[case::all_nums(vec!['1', ' ', ' '], 1)]
-    #[case::all_nums(vec!['1', '2', ' '], 12)]
-    #[case::all_nums(vec![' ', '2', '3'], 23)]
-    fn test_create_num_from_chars(#[case] vals: Vec<char>, #[case] answer: usize) {
+    #[case::all_nums(vec!['1', '2', '3'], Some(123))]
+    #[case::all_nums(vec![' ', ' ', '3'], Some(3))]
+    #[case::all_nums(vec!['1', ' ', ' '], Some(1))]
+    #[case::all_nums(vec!['1', '2', ' '], Some(12))]
+    #[case::all_nums(vec![' ', '2', '3'], Some(23))]
+    #[case::all_nums(vec![' ', ' ', ' '], None)]
+    fn test_create_num_from_chars(#[case] vals: Vec<char>, #[case] answer: Option<usize>) {
         assert_eq!(create_num_from_chars(&vals), answer)
     }
 
