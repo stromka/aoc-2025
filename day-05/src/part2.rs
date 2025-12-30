@@ -84,24 +84,19 @@ pub fn to_b_tree_set(ranges: Vec<(isize, isize)>) -> BTreeSet<Range> {
     tree_set
 }
 
-pub fn search_b_tree_set(tree: &BTreeSet<Range>, vals: Vec<isize>) -> isize {
+pub fn count_all_fresh_ids(tree: &BTreeSet<Range>) -> isize {
     let mut count = 0;
-    for val in vals {
-        for range in tree.iter() {
-            if (val >= range.min) & (val <= range.max) {
-                count += 1;
-                break; // stop if we've found our value in the range
-            }
-        }
+    for range in tree.iter() {
+        count += range.max - range.min + 1
     }
     count
 }
 
 pub fn process_b_tree_set(path: &Path) -> anyhow::Result<usize> {
-    let (ranges, values) = read_txt(path);
+    let (ranges, _values) = read_txt(path);
     let tree = to_b_tree_set(ranges);
 
-    let count = search_b_tree_set(&tree, values);
+    let count = count_all_fresh_ids(&tree);
 
     Ok(count as usize)
 }
@@ -122,7 +117,7 @@ mod tests {
     fn test_process() -> anyhow::Result<()> {
         let input = Path::new("./../inputs/day5_sample.txt");
 
-        assert_eq!(3, process(input)?);
+        assert_eq!(14, process(input)?);
         Ok(())
     }
 
@@ -130,7 +125,7 @@ mod tests {
     fn test_proces_full() -> anyhow::Result<()> {
         let input = Path::new("./../inputs/day5.txt");
 
-        assert_eq!(737, process(input)?);
+        assert_eq!(357485433193284, process(input)?);
         Ok(())
     }
 
@@ -175,25 +170,29 @@ mod tests {
     }
 
     #[test]
-    fn test_search_b_tree_set() {
+    fn test_count_all_fresh_ids() {
         let ranges = vec![
-            Range { min: 20, max: 30},
-            Range { min: 6, max: 10 },
-            Range { min: 12, max: 15},
-            Range { min: 3, max: 5 },
-            Range { min: 14, max: 15},
+            (20, 30),
+            (6, 10),
+            (12, 15),
+            (3, 5),
+            (14, 15),
         ];
 
-        let mut btree = BTreeSet::new();
-        for range in ranges.into_iter() {
-            btree.insert(range);
-        }
+        let btree = to_b_tree_set(ranges);
 
-        let vals = vec![3, 10, 11];
+        let final_ranges = vec![
+            &Range { min: 3, max: 10 },
+            &Range { min: 12, max: 15 },
+            &Range { min: 20, max: 30 },
+        ];
 
-        let res = search_b_tree_set(&btree, vals);
+        let btree_ranges = btree.iter().collect::<Vec<&Range>>();
+        assert_eq!(btree_ranges, final_ranges);
 
-        assert_eq!(res, 2)
+        let res = count_all_fresh_ids(&btree);
+
+        assert_eq!(res, 23)
     }
 
     #[rstest]
