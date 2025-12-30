@@ -17,7 +17,9 @@ fn main() {
 
     if args.part == 1 {
         let res = process_part1(&Path::new("../inputs/day6.txt"));
+        assert_eq!(res.unwrap(), 6605396225322);
     } else if args.part == 2 {
         let res = process_part2(&Path::new("../inputs/day6.txt"));
+        assert_eq!(res.unwrap(), 11052310600986);
     }
 }
