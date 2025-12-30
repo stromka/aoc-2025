@@ -87,11 +87,15 @@ pub fn to_b_tree_set(ranges: Vec<(isize, isize)>) -> BTreeSet<Range> {
 pub fn search_b_tree_set(tree: &BTreeSet<Range>, vals: Vec<isize>) -> isize {
     let mut count = 0;
     for val in vals {
+        let mut last_max = 0;
         for range in tree.iter() {
             if (val >= range.min) & (val <= range.max) {
                 count += 1;
                 break; // stop if we've found our value in the range
             }
+            // if we've passed the range the value would belong in, we stop searching
+            if (val > last_max) & (val < range.min) { break }
+            last_max = range.max;
         }
     }
     count
