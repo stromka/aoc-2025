@@ -20,6 +20,26 @@ Benchmark 1: ./target/release/day-03 --part 2
   Range (min … max):     0.0 µs … 18546.2 µs    545 runs
 ```
 
+## Day 4
+
+### Part 1
+
+```
+hyperfine --warmup 3 './target/release/day-04 --part 1'
+Benchmark 1: ./target/release/day-04 --part 1
+  Time (mean ± σ):       1.0 ms ±   1.2 ms    [User: 0.8 ms, System: 0.3 ms]
+  Range (min … max):     0.0 ms …  13.1 ms    287 runs
+```
+
+### Part 2
+
+```
+hyperfine --warmup 3 './target/release/day-04 --part 2'
+Benchmark 1: ./target/release/day-04 --part 2
+  Time (mean ± σ):       8.7 ms ±   1.3 ms    [User: 7.0 ms, System: 2.0 ms]
+  Range (min … max):     6.6 ms …  18.5 ms    164 runs
+```
+
 ## Day 6
 
 Nothing pretty here
