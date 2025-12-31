@@ -87,6 +87,15 @@ impl From<String> for AirSpace {
     }
 }
 
+pub fn process(input: &Path) -> anyhow::Result<usize> {
+    let file_text = read_to_string(input).expect("Failed to read file");
+
+    let mut airspace = AirSpace::from(file_text);
+    let n_splitters = airspace.pew_pew();
+
+    Ok(n_splitters)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -94,10 +103,7 @@ mod tests {
     #[test]
     fn test_process() -> anyhow::Result<()> {
         let input = Path::new("../inputs/day7_sample.txt");
-        let file_text = read_to_string(input).expect("Failed to read file");
-
-        let mut airspace = AirSpace::from(file_text);
-        let n_splitters = airspace.pew_pew();
+        let n_splitters = process(input)?;
 
         assert_eq!(n_splitters, 21);
         Ok(())
@@ -106,10 +112,7 @@ mod tests {
     #[test]
     fn test_process_full() -> anyhow::Result<()> {
         let input = Path::new("../inputs/day7.txt");
-        let file_text = read_to_string(input).expect("Failed to read file");
-
-        let mut airspace = AirSpace::from(file_text);
-        let n_splitters = airspace.pew_pew();
+        let n_splitters = process(input)?;
 
         assert_eq!(n_splitters, 1490);
         Ok(())
